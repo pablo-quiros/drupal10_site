@@ -1,0 +1,25 @@
+name: drupal-10-site
+recipe: drupal10
+config:
+  php: '8.1'
+  composer_version: '2.2.12'
+  webroot: web
+services:
+  appserver:
+    build:
+      - composer install
+      - chmod 755 /app/web/sites/default
+      - chmod 755 /app/web/sites/default/settings.local.php || true
+      - cp /app/web/sites/default/lando.settings.local.php /app/web/sites/default/settings.local.php
+      - chmod 755 /app/web/sites/default/settings.local.php || true
+    overrides:
+      environment:
+        DRUSH_OPTIONS_URI: "http://drupal10-site.lndo.site"
+        PHP_SENDMAIL_PATH: '/usr/sbin/sendmail -S mailhog:1025'
+  mailhog:
+    type: mailhog
+    hogfrom:
+      - appserver
+proxy:
+  mailhog:
+    - mailhog.drupal10-site.lndo.site
